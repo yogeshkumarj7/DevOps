@@ -1,0 +1,16 @@
+Terraform generated files
+.terraform/
+*.tfplan
+*.tfstate
+*.tfstate.backup
+crash.log
+override.tf
+override.tf.json
+.terraformrc
+terraform.rc
+
+AWS Key Pair
+*.pem
+*.key
+
+.idea/
