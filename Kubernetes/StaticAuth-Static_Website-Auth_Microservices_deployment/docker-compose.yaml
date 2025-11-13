@@ -1,0 +1,37 @@
+version: '3.8'
+services:
+  mongo:
+    image: mongo:6
+    ports: ["27017:27017"]
+    volumes:
+      - mongo-data:/data/db
+
+  user-service:
+    build: ./user-service
+    environment:
+      - MONGO_URL=mongodb://mongo:27017/micro-users
+    ports:
+      - "4000:4000"
+    depends_on:
+      - mongo
+
+  auth-service:
+    build: ./auth-service
+    environment:
+      - USER_SERVICE_URL=http://user-service:4000
+    ports:
+      - "5000:5000"
+    depends_on:
+      - user-service
+
+  web:
+    build: ./web-frontend
+    ports:
+      - "8080:80"
+    depends_on:
+      - auth-service
+      - user-service
+
+volumes:
+  mongo-data:
+

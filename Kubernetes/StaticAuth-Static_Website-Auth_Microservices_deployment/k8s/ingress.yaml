@@ -1,0 +1,19 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: staticauth-ingress
+  namespace: staticauth
+  annotations:
+    kubernetes.io/ingress.class: nginx
+spec:
+  rules:
+    - host: staticauth.local
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: web-frontend
+                port: { number: 80 }
+

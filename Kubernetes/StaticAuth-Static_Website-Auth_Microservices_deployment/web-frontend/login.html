@@ -1,0 +1,69 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>Login</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    body{font-family:system-ui,Arial;padding:24px;max-width:520px;margin:auto;background:#f9f9f9}
+    h1{margin-bottom:8px}
+    form{display:grid;gap:12px;margin-top:12px}
+    input,button{padding:12px;font-size:16px;border-radius:6px}
+    input{border:1px solid #ccc}
+    button{background:#007bff;border:none;color:white;cursor:pointer}
+    button:hover{background:#005fcc}
+    .card{padding:20px;border:1px solid #ddd;border-radius:12px;background:white}
+    .msg{margin-top:12px;font-size:14px}
+    a{display:inline-block;margin-top:8px}
+  </style>
+</head>
+<body>
+  <h1>Login</h1>
+  <p class="muted">Don’t have an account? <a href="signup.html">Sign up</a>.</p>
+
+  <div class="card">
+    <form id="loginForm">
+      <input type="email" name="email" placeholder="Email" required />
+      <input type="password" name="password" placeholder="Password" required />
+      <button type="submit">Login</button>
+    </form>
+    <div id="msg" class="msg"></div>
+  </div>
+
+  <script>
+    const form = document.getElementById('loginForm');
+    const msg  = document.getElementById('msg');
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      msg.textContent = 'Validating...';
+
+      const payload = Object.fromEntries(new FormData(form).entries());
+
+      try {
+        const r = await fetch('/api/login', {
+          method: 'POST',
+          headers: { 'Content-Type':'application/json' },
+          body: JSON.stringify(payload)
+        });
+
+        const data = await r.json();
+
+        if (r.ok) {
+          msg.style.color = "green";
+          msg.textContent = data.message || "Login Successful!";
+          alert("Login Successful!");
+        } else {
+          msg.style.color = "red";
+          msg.textContent = data.message || "Invalid credentials";
+        }
+
+      } catch (err) {
+        msg.style.color = "red";
+        msg.textContent = "Network error: " + err.message;
+      }
+    });
+  </script>
+</body>
+</html>
+
