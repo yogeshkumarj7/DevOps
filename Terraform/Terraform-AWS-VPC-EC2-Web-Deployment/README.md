@@ -1,92 +1,199 @@
-🚀 Terraform AWS Basic Web Server Deployment
-This project demonstrates how to provision a complete, secure, and internet-accessible web server environment on AWS using Terraform and the Infrastructure as Code (IaC) methodology.
-The final output is an EC2 instance running an Apache web server, accessible from the public internet.
-🌟 Key Features & Architecture
-This Terraform stack automatically provisions all required networking and compute components for a basic AWS web infrastructure.
-🏗️ 1. Networking Foundation (VPC & Subnets)
-Component
-Description
-VPC (10.0.0.0/16)
-Creates a logically isolated virtual network, serving as the secure container for all resources.
-Public Subnet
-Hosts the web server and automatically assigns public IPs for internet access.
-Private Subnets (A & B)
-Reserved for backend resources like databases or application servers (not directly accessible from the internet).
+# 🚀 Terraform AWS Production-Grade Web Server Infrastructure
 
-🌐 2. Internet Connectivity & Routing
-Component
-Description
-Internet Gateway (IGW)
-Enables communication between the VPC and the public internet.
-Public Route Table
-Routes all external traffic (0.0.0.0/0) from the public subnet through the IGW.
+This project showcases a **production-ready Infrastructure as Code (IaC) implementation** using **Terraform** to deploy a secure, scalable, and internet-accessible web server environment on **Amazon Web Services (AWS)**.
 
-💻 3. Compute & Security
-Component
-Description
-Security Group (my-SSH-Access)
-Virtual firewall that allows SSH (Port 22) for secure login. Later, HTTP (Port 80) is added for web access.
-EC2 Instance
-A t2.micro Amazon Linux instance deployed in the public subnet to host the web application.
+The infrastructure provisions an **EC2 instance running Apache**, hosted inside a properly designed **VPC architecture**, following real-world DevOps and cloud best practices.
 
-🧰 Technologies Used
-Technology
-Purpose
-Terraform
-Infrastructure as Code tool used to define, provision, and manage AWS resources.
-AWS
-Cloud provider hosting all resources (VPC, EC2, SG, etc.).
-Bash / SSH
-Used for remote administration and post-deployment setup.
-Apache (httpd)
-Web server software installed on EC2 to host and serve the HTML page.
+---
 
-⚙️ Deployment Instructions
-✅ Prerequisites
-Terraform CLI installed locally
-AWS CLI installed and configured with valid credentials
-Existing AWS Key Pair (named my-terra) imported into your AWS account
-🚀 Steps to Launch
-# 1️⃣ Clone this repository
-git clone [YOUR-REPO-URL]
-cd [PROJECT-DIRECTORY]
+## 🏗️ Architecture Diagram
 
-# 2️⃣ Initialize Terraform
+```text
+                    🌍 Internet
+                         │
+                         ▼
+                ┌─────────────────┐
+                │ Internet Gateway │
+                └─────────────────┘
+                         │
+                         ▼
+                ┌─────────────────┐
+                │ Public Route Tbl │
+                └─────────────────┘
+                         │
+                         ▼
+        ┌────────────────────────────────┐
+        │               VPC              │
+        │        10.0.0.0 / 16            │
+        │                                │
+        │   ┌────────────────────────┐   │
+        │   │      Public Subnet     │   │
+        │   │    10.0.1.0 / 24       │   │
+        │   │                        │   │
+        │   │  ┌─────────────────┐  │   │
+        │   │  │   EC2 Instance  │  │   │
+        │   │  │  Apache Server  │  │   │
+        │   │  │   (HTTP :80)   │  │   │
+        │   │  └─────────────────┘  │   │
+        │   └────────────────────────┘   │
+        │                                │
+        │   ┌────────────────────────┐   │
+        │   │    Private Subnet A    │   │
+        │   │    10.0.2.0 / 24       │   │
+        │   └────────────────────────┘   │
+        │                                │
+        │   ┌────────────────────────┐   │
+        │   │    Private Subnet B    │   │
+        │   │    10.0.3.0 / 24       │   │
+        │   └────────────────────────┘   │
+        │                                │
+        └────────────────────────────────┘
+```
+
+---
+
+## 🌟 Key Features
+
+- Fully automated AWS infrastructure using Terraform
+- Secure VPC design with public and private subnets
+- Controlled internet access using Internet Gateway & Route Tables
+- SSH and HTTP access managed through Security Groups
+- Production-aligned structure suitable for scaling and CI/CD integration
+- Easy teardown to prevent unnecessary AWS charges
+
+---
+
+## 🧩 Infrastructure Components
+
+### 🌐 Networking Layer
+
+| Resource | Description |
+|--------|-------------|
+| VPC | Isolated virtual network (10.0.0.0/16) |
+| Public Subnet | Hosts internet-facing EC2 instance |
+| Private Subnets (A & B) | Reserved for backend/internal services |
+| Internet Gateway | Enables VPC internet access |
+| Route Tables | Controls outbound traffic routing |
+
+### 🔐 Security Layer
+
+| Resource | Description |
+|--------|-------------|
+| Security Group | Allows SSH (22) and HTTP (80) |
+| Key Pair | Secure SSH access using `Assign-terra.pem` |
+
+### 💻 Compute Layer
+
+| Resource | Description |
+|--------|-------------|
+| EC2 Instance | t2.micro Amazon Linux |
+| Web Server | Apache (httpd) |
+
+---
+
+## 🧰 Technology Stack
+
+- **Terraform** – Infrastructure as Code
+- **AWS** – EC2, VPC, Subnets, Route Tables, Security Groups
+- **Apache HTTP Server** – Web hosting
+- **Bash & SSH** – Server configuration
+
+---
+
+## ⚙️ Deployment Guide
+
+### Prerequisites
+
+- Terraform CLI
+- AWS CLI configured
+- Existing AWS Key Pair: `Assign-terra`
+
+### 🚀 Provision Infrastructure
+
+```bash
+git clone <REPOSITORY-URL>
+cd <PROJECT-DIRECTORY>
+
 terraform init
-
-# 3️⃣ Review planned changes
 terraform plan
-
-# 4️⃣ Apply configuration
 terraform apply
-# Type 'yes' when prompted
+```
 
+Confirm with `yes` when prompted.
 
-🧩 Post-Deployment & Validation
-🔐 Connect to the EC2 Instance
-ssh -i "key.pem" ec2-user@[Public-IP]
+---
 
+## 🧩 Post-Deployment & Validation
 
-🌍 Setup Apache Web Server
+### 🔐 SSH Access
+
+```bash
+ssh -i "Assign-terra.pem" ec2-user@<PUBLIC-IP>
+```
+
+### 🌍 Configure Apache
+
+```bash
 sudo yum update -y
 sudo yum install httpd -y
 sudo systemctl start httpd
 sudo systemctl enable httpd
 
-# Create test page
-echo "<h1>✅ Success! Deployed by Terraform.</h1>" | sudo tee /var/www/html/index.html
+echo "<h1>✅ Production Web Server Deployed via Terraform</h1>" | sudo tee /var/www/html/index.html
+```
 
+### 🔓 Enable HTTP Access
 
-🔓 Open HTTP Port (Port 80)
-In AWS Console → Security Groups → my-SSH-Access → Add Inbound Rule:
-Type: HTTP
-Port: 80
-Source: 0.0.0.0/0
-🧠 Validate
-Open your EC2 Public IP in a browser:
-👉 http://<YOUR-PUBLIC-IP>
-You should see:
-✅ Success! Deployed by Terraform.
-🧹 Cleanup
+AWS Console → Security Groups → Assignment1-SSH-Access  
+Add inbound rule:
+- Type: HTTP
+- Port: 80
+- Source: 0.0.0.0/0
+
+### 🧠 Verify Deployment
+
+Visit in browser:
+
+```
+http://<PUBLIC-IP>
+```
+
+---
+
+## 🧹 Infrastructure Cleanup
+
+```bash
 terraform destroy
-# Type 'yes' when prompted
+```
+
+Safely removes all AWS resources.
+
+---
+
+## 🚀 Production Readiness Notes
+
+- Ready for Auto Scaling Group integration
+- Can be extended with Load Balancer (ALB)
+- Supports CI/CD pipelines (Jenkins, GitHub Actions)
+- Terraform state can be moved to S3 + DynamoDB locking
+- Separate environments (dev / stage / prod) easily achievable
+
+---
+
+## 🏁 Conclusion
+
+This project reflects **real-world cloud engineering and DevOps practices**, demonstrating how Terraform can be used to build secure, modular, and production-ready AWS infrastructure.
+
+Perfect for:
+- DevOps portfolios
+- Cloud interviews
+- Terraform hands-on projects
+- Infrastructure automation demonstrations
+
+---
+
+## 🧑‍💻 Author
+
+**Yogi Jagtap**  
+DevOps | Cloud | Infrastructure Automation  
+Feel free to fork, enhance, and scale this project 🚀
